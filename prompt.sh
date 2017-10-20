@@ -12,9 +12,16 @@ function update_prompt {
   # Tell if we're within a Git repository.
   if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
 
+    # Get current branch.
+    local branch="${$(git symbolic-ref HEAD 2> /dev/null)#refs/heads/}"
+
+    # Tell if we're in the middle of a rebase -i.
+    if test -d $(git rev-parse --git-dir)/rebase-merge; then
+      _git="%F{magenta}$branch*%f "
+
     # Tell if there's uncommited changes.
-    if test -n "$(git status --porcelain)"; then
-      _git="%F{red}*%f "
+    elif test -n "$(git status --porcelain)"; then
+      _git="%F{yellow}$branch*%f "
     else
       local git_local="$(git rev-parse @)"
       local git_remote="$(git rev-parse '@{u}')"
@@ -23,9 +30,9 @@ function update_prompt {
       if test "$git_local" = "$git_remote"; then
         _git=
       elif test "$git_local" = "$git_base"; then
-        _git="%F{cyan}↓%f "
+        _git="%F{cyan}$branch↓%f "
       elif test "$git_remote" = "$git_base"; then
-        _git="%F{cyan}↑%f "
+        _git="%F{green}$branch↑%f "
       fi
     fi
   fi
