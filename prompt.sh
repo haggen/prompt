@@ -28,7 +28,7 @@ function update_prompt {
       local git_base="$(git merge-base @ '@{u}')"
 
       if test "$git_local" = "$git_remote"; then
-        _git=
+        _git="%F{white}$branch%f "
       elif test "$git_local" = "$git_base"; then
         _git="%F{cyan}$branch↓%f "
       elif test "$git_remote" = "$git_base"; then
