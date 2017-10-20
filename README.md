@@ -1,4 +1,4 @@
-<center><img alt="Prompt" src="screenshot.png"></center>
+<p align="center"><img alt="Prompt" src="screenshot.png"></p>
 
 ---
 
