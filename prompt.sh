@@ -17,11 +17,11 @@ function update_prompt {
 
     # Tell if we're in the middle of a rebase -i.
     if test -d $(git rev-parse --git-dir)/rebase-merge; then
-      _git="%F{magenta}$branch*%f "
+      _git="%F{red}*%f "
 
     # Tell if there's uncommited changes.
     elif test -n "$(git status --porcelain)"; then
-      _git="%F{yellow}$branch*%f "
+      _git="%F{yellow}$branch±%f "
     else
       local git_local="$(git rev-parse @)"
       local git_remote="$(git rev-parse '@{u}')"
@@ -30,9 +30,9 @@ function update_prompt {
       if test "$git_local" = "$git_remote"; then
         _git="%F{white}$branch%f "
       elif test "$git_local" = "$git_base"; then
-        _git="%F{cyan}$branch↓%f "
+        _git="%F{cyan}$branch▼%f "
       elif test "$git_remote" = "$git_base"; then
-        _git="%F{green}$branch↑%f "
+        _git="%F{green}$branch▲%f "
       fi
     fi
   fi
