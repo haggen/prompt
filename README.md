@@ -1,6 +1,4 @@
-<center>
-![Prompt for zsh](screenshot.png)
-</center>
+<center><img alt="Prompt" src="screenshot.png"></center>
 
 ---
 
