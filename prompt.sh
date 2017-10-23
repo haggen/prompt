@@ -1,66 +1,5 @@
 # See https://github.com/haggen/prompt
 
-# Accessible variables.
-local _prompt_pwd _prompt_git _precmd_seconds
-
-# Enable prompt substitution and add
-# carriage return before the prompt.
-setopt promptsubst promptcr
-
-# The prompt.
-PROMPT='%B$_prompt_pwd $_prompt_git%b'
-
-# Update the directory section of prompt.
-function update_prompt_pwd {
-  # Get current working directory, replacing $HOME for ~.
-  _prompt_pwd="${PWD/#$HOME/~}"
-
-  # Shorten the path.
-  if test "$_prompt_pwd" != "~"; then
-    _prompt_pwd="${${${${(@j:/:M)${(@s:/:)_prompt_pwd}##.#?}:h}%/}//\%/%%}/${${_prompt_pwd:t}//\%/%%}"
-  fi
-}
-
-# Update the Git section of prompt.
-function update_prompt_git {
-
-  # Tell if we're within a Git repository.
-  if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-
-    # Get current branch.
-    local branch="${$(git symbolic-ref HEAD 2> /dev/null)#refs/heads/}"
-
-    # Tell if we're in the middle of a rebase -i.
-    if test -d $(git rev-parse --git-dir)/rebase-merge; then
-      _prompt_git="%F{red}*%f "
-
-    # Tell if the working copy is clean.
-    elif test -n "$(git status --porcelain)"; then
-      _prompt_git="%F{yellow}$branch±%f "
-
-    # Otherwise change colors and append a cue.
-    else
-      local git_local="$(git rev-parse @)"
-      local git_remote="$(git rev-parse '@{u}')"
-      local git_base="$(git merge-base @ '@{u}')"
-
-      if test "$git_local" = "$git_remote"; then
-        _prompt_git="%F{white}$branch%f "
-      elif test "$git_local" = "$git_base"; then
-        _prompt_git="%F{cyan}$branch▼%f "
-      elif test "$git_remote" = "$git_base"; then
-        _prompt_git="%F{green}$branch▲%f "
-      fi
-    fi
-  fi
-}
-
-# Hook to when the current working directory changes.
-function chpwd {
-  update_prompt_pwd
-  update_prompt_git
-}
-
 # Hook to just before a command is executed.
 function preexec {
   _precmd_seconds=$SECONDS
@@ -98,6 +37,54 @@ function precmd {
   _precmd_seconds=
 }
 
-# Update prompt variables once at initialization.
-update_prompt_pwd
-update_prompt_git
+# Get the directory section of prompt.
+function _prompt_pwd {
+  # Get current working directory, replacing $HOME for ~.
+  local pwd="${PWD/#$HOME/~}"
+
+  # Shorten the path.
+  if test "$pwd" != "~"; then
+    print "${${${${(@j:/:M)${(@s:/:)pwd}##.#?}:h}%/}//\%/%%}/${${pwd:t}//\%/%%}"
+  else
+    print "$pwd"
+  fi
+}
+
+# Get the Git section of prompt.
+function _prompt_git {
+  local branch local_head remote_head base_head
+
+  # Bail if we are outside a Git repository.
+  if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    return
+  fi
+
+  # Get active branch.
+  branch="${$(git symbolic-ref HEAD 2> /dev/null)#refs/heads/}"
+
+  # Change colors and append status cue.
+  if test -d $(git rev-parse --git-dir)/rebase-merge; then
+    print "%F{red}*%f "
+  elif test -n "$(git status --porcelain)"; then
+    print "%F{yellow}$branch±%f "
+  else
+    local_head="$(git rev-parse @)"
+    remote_head="$(git rev-parse '@{u}')"
+    base_head="$(git merge-base @ '@{u}')"
+
+    if test "$local_head" = "$remote_head"; then
+      print "%F{white}$branch%f "
+    elif test "$local_head" = "$base_head"; then
+      print "%F{cyan}$branch▼%f "
+    elif test "$remote_head" = "$base_head"; then
+      print "%F{green}$branch▲%f "
+    fi
+  fi
+}
+
+# Enable prompt substitution and add
+# carriage return before the prompt.
+setopt promptsubst promptcr
+
+# The prompt.
+PROMPT='%B$(_prompt_pwd) $(_prompt_git)%b'
