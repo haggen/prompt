@@ -4,8 +4,8 @@
 
 This is my custom zsh prompt.
 
-- No framework dependency (oh-my-zsh, prezto, etc).
-- Minimalistic but fast and a small profile.
+- Framework agnostic (oh-my-zsh, prezto, etc).
+- Minimalistic, fast, and small profile.
 - Displays elapsed time after command execution.
 - Displays cues when inside a Git repository.
 
