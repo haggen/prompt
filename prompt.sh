@@ -60,17 +60,17 @@ function _prompt_git {
   fi
 
   # Get active branch.
-  branch="${$(git symbolic-ref HEAD 2> /dev/null)#refs/heads/}"
+  branch="${$(git symbolic-ref HEAD 2>/dev/null)#refs/heads/}"
 
   # Change colors and append status cue.
-  if test -d $(git rev-parse --git-dir)/rebase-merge; then
+  if test -d $(git rev-parse --git-dir 2>/dev/null)/rebase-merge; then
     print "%F{red}*%f "
-  elif test -n "$(git status --porcelain)"; then
+  elif test -n "$(git status --porcelain 2>/dev/null)"; then
     print "%F{yellow}$branch±%f "
   else
-    local_head="$(git rev-parse @)"
-    remote_head="$(git rev-parse '@{u}')"
-    base_head="$(git merge-base @ '@{u}')"
+    local_head="$(git rev-parse @ 2>/dev/null)"
+    remote_head="$(git rev-parse '@{u}' 2>/dev/null)"
+    base_head="$(git merge-base @ '@{u}' 2>/dev/null)"
 
     if test "$local_head" = "$remote_head"; then
       print "%F{white}$branch%f "
